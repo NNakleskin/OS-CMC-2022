@@ -3,11 +3,24 @@
 #include <string.h>
 
 
+int
+find_dot(char *buf);
+
+
+int
+find_doubledot(char *buf);
+
+
+char*
+find_slash(char *buf);
+
+
 void
 normalize_path(char *buf) {
     int len = strlen(buf);
-    for(int i = 0; i < n; i++) {
-
+    if(buf[len - 1] == '/') {
+        buf[len - 1] = '\0';
+        len--;
     }
 }
 
