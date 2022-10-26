@@ -4,15 +4,30 @@
 
 
 int
-find_dot(char *buf);
+find_dot(char *buf) {
+    if(*buf == '.' && *(buf - 1) == '/') {
+        return 1;
+    }
+    return 0;
+}
 
 
 int
-find_doubledot(char *buf);
+find_doubledot(char *buf){
+    if(*buf == '.' && *(buf - 1) == '.' && *(buf - 2) == '/') {
+        return 1;
+    }
+    return 0;
+}
 
 
 char*
-find_slash(char *buf);
+find_slash(char *buf) {
+    while(*buf != '/') {
+        *buf = *(buf - 1);
+    }
+    return buf;
+}
 
 
 void
@@ -29,6 +44,6 @@ int main(void) {
     char a[100];
     scanf("%s", a);
     normalize_path(a);
-    printf("%d", a);
+    printf("%s", a);
     return 0;
 }
