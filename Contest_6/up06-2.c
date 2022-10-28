@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 
 int
-find_dot(char *buf) {
+is_dot(char *buf) {
     if(*buf == '.' && *(buf - 1) == '/') {
         return 1;
     }
@@ -13,7 +14,7 @@ find_dot(char *buf) {
 
 
 int
-find_doubledot(char *buf){
+is_doubledot(char *buf){
     if(*buf == '.' && *(buf - 1) == '.' && *(buf - 2) == '/') {
         return 1;
     }
@@ -32,16 +33,27 @@ find_slash(char *buf) {
 
 void
 normalize_path(char *buf) {
+    int doubledot_count = 0;
     int len = strlen(buf);
     if(buf[len - 1] == '/') {
         buf[len - 1] = '\0';
         len--;
     }
+    for(int i = len - 1; i > 1; ++i) {
+        if(i > 2) {
+            if(is_doubledot(buf[i]) {
+                doubledot_count++;
+                i -= 3;
+            } else if (is_dot(buf[i])) {
+                i -= 2;
+            } 
+       }
+    }
 }
 
 
 int main(void) {
-    char a[100];
+    char a[PATH_MAX];
     scanf("%s", a);
     normalize_path(a);
     printf("%s", a);
