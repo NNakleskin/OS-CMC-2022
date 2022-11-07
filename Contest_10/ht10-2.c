@@ -1,47 +1,64 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-/* 
+/*
 seed - начальное значение
 1103515245 - множитель
 инкремент - 12345
 2^31 - модуль
 */
 
+
+struct RandomGenerator;
+struct RandomOperations;
+void destroy(struct RandomGenerator *rr);
+int next(struct RandomGenerator *rr);
+
+
 enum Constants {
     MULTIP = 1103515245,
     INCR = 12345,
-    MOD = pow(2, 31)
+    MOD = 2147483648
 };
 
 
+typedef struct RandomOperations
+{
+    void (*destroy)(struct RandomGenerator *rr);
+    int (*next)(struct RandomGenerator *rr);
+}RandomOperations;
+
+
+typedef struct RandomGenerator
+{
+    long long seed;
+    RandomOperations *ops;
+} RandomGenerator;
+
+
 void destroy(RandomGenerator *rr) {
+    free(rr->ops);
     free(rr);
 }
 
 
 int next(RandomGenerator *rr) {
-    int tmp = (MULTIP * rr->seed + INCR) % MOD;
-    rr->seed = tmp;
-    return tmp;
+    long long tmp = (MULTIP * rr->seed + INCR) % MOD;
+    rr->seed = (int) tmp;
+    return (int) tmp;
 }
 
 
-typedef struct RandomGenerator
-{
-    int seed;
-    void (*destroy) (RandomGenerator *rr);
-    int (*next) (RandomGenerator *rr);
-} RandomGenerator;
-
-
-RandomGenerator *random_create(int seed) {
+RandomGenerator *random_create(long long seed) {
     RandomGenerator *rr = calloc(1, sizeof(RandomGenerator));
     rr->seed = seed;
+    rr->ops = calloc(1, sizeof(RandomOperations));
+    rr->ops->next = next;
+    rr->ops->destroy = destroy;
     return rr;
 }
 
-
+/*
 int main(void) {
     RandomGenerator *rr = random_create(1234);
     for (int j = 0; j < 100; ++j) {
@@ -49,4 +66,6 @@ int main(void) {
     }
     rr->ops->destroy(rr);
     return 0;
-} 
+} */
+
+
