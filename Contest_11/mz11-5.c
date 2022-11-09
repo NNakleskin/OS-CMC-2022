@@ -1,25 +1,27 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <fcntl.h>
+#include <stdlib.h>
 #include <sys/wait.h>
-
-
-void reverse() {
-    int num;
-    if(scanf("%d", &num) != EOF) {
-        pid_t p = fork();
-        reverse();
-        wait(&p);
-        printf("%d\n", num);
-        return;
-    }
-    //printf("%d\n", num);
-    return;
-}
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdio.h>
 
 
 int main(void) {
-    reverse();
+    pid_t p;
+    int n = 0;
+    while(scanf("%d", &n) != EOF) {
+        p = fork();
+        if(p == -1) {
+            printf("-1\n");
+            return 0;
+        }
+        if(p == 0) {
+            continue;
+        }
+        wait(&p);
+        printf("%d\n", n);
+        exit(0);
+    }
     return 0;
 }
+
