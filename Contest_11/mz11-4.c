@@ -7,20 +7,19 @@
 
 
 int main(void) {
-    int num = 1;
     pid_t p;
     int n;
     scanf("%d", &n);
-    p = fork();
-    while(num < n) {
-        num += 1;
+    int num = n - 1;
+    while(num > 0) {
         p = fork();
-       // printf("%d\n", num - 1);
         if(p == 0) {
-            break;
-        } else {
-            printf("%d\n", num);
+            num--;
+            continue;
         }
+        wait(&p);
+        printf("%d\n", num);
+        break;
     }
     return 0;
 }
