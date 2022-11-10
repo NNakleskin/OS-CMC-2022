@@ -26,25 +26,25 @@ int main(int argc, char **argv) {
     while(num <= rows * cols) {
         for(int i = l_down; i <= r_up; ++i) {
             if(num > rows * cols) { break; }
-            matrix[l_up * rows + i] = num;
+            matrix[l_up * cols + i] = num;
             num++;
         }
         l_up++;
         for(int i = l_up; i <= r_down; ++i) {
             if(num > rows * cols) { break; }
-            matrix[i * rows + r_up] = num;
+            matrix[i * cols + r_up] = num;
             num++;
         }
         r_up--;
         for(int i = r_up; i >= l_down; --i) {
             if(num > rows * cols) { break; }
-            matrix[r_down * rows + i] = num;
+            matrix[r_down * cols + i] = num;
             num++;
         }
         r_down--;
         for(int i = r_down; i >= l_up; --i) {
             if(num > rows * cols) { break; }
-            matrix[i * rows + l_down] = num;
+            matrix[i * cols + l_down] = num;
             num++;
         }
         l_down++;
