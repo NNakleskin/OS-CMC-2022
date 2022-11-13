@@ -7,19 +7,19 @@
 
 
 int main(void) {
-    pid_t p;
+    pid_t p, id = getpid();
     int n;
     scanf("%d", &n);
-    int num = n - 1;
-    while(num > 0) {
+    while(n > 0) {
         p = fork();
         if(p == 0) {
-            num--;
+            n--;
             continue;
         }
         wait(&p);
-        printf("%d\n", num);
-        break;
+        printf("%d", n);
+        if(getpid() == id) { putchar(10); } else { putchar(' '); }
+        exit(0);
     }
     return 0;
 }
