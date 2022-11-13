@@ -9,19 +9,30 @@
 int main(void) {
     pid_t p;
     int n = 0;
-    while(scanf("%d", &n) != EOF) {
-        p = fork();
-        if(p == -1) {
-            printf("-1\n");
-            return 0;
+    int ret_value = 0;
+    p = fork();
+    if(p == 0) {
+        while(scanf("%d", &n) != EOF) {
+            p = fork();
+            if(p == -1) {
+                _exit(EXIT_FAILURE);
+            } else if(p == 0) {
+                continue;
+            }
+            wait(&ret_value);
+            if(WEXITSTATUS(ret_value) == EXIT_FAILURE) { 
+                _exit(EXIT_FAILURE);
+            }
+            fflush(stdout);
+            printf("%d\n", n);
+            _exit(EXIT_SUCCESS);
         }
-        if(p == 0) {
-            continue;
-        }
-        wait(&p);
-        printf("%d\n", n);
-        exit(0);
     }
-    return 0;
-}
+    wait(&ret_value);
+    if(WEXITSTATUS(ret_value) == EXIT_FAILURE) {
+        printf("-1\n");
+        fflush(stdout);
+    }
+    _exit(EXIT_SUCCESS);  
+} 
 
