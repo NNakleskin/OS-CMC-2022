@@ -23,8 +23,8 @@ int main(void) {
             if(WEXITSTATUS(ret_value) == EXIT_FAILURE) { 
                 _exit(EXIT_FAILURE);
             }
-            fflush(stdout);
             printf("%d\n", n);
+            fflush(stdout);
             _exit(EXIT_SUCCESS);
         }
     }
