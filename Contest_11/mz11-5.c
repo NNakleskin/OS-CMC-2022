@@ -9,7 +9,7 @@
 int main(void) {
     pid_t p;
     int n = 0;
-    int ret_value = 0;
+    int ret_value = EXIT_SUCCESS;
     p = fork();
     if(p == 0) {
         while(scanf("%d", &n) != EOF) {
@@ -19,6 +19,7 @@ int main(void) {
             } else if(p == 0) {
                 continue;
             }
+            ret_value = EXIT_SUCCESS;
             wait(&ret_value);
             if(WEXITSTATUS(ret_value) == EXIT_FAILURE) { 
                 _exit(EXIT_FAILURE);
@@ -28,6 +29,7 @@ int main(void) {
             _exit(EXIT_SUCCESS);
         }
     }
+    ret_value = EXIT_SUCCESS;
     wait(&ret_value);
     if(WEXITSTATUS(ret_value) == EXIT_FAILURE) {
         printf("-1\n");
