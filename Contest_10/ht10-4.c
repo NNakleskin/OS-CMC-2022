@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <string.h>
+#include <stddef.h>
 
 
 struct Funcstack {
@@ -13,7 +14,8 @@ struct Funcstack {
 };
 
 
-void buf_generate(char *signature, char **params, struct Funcstack *stack, int count_params) {
+void buf_generate(char *signature, char **params, struct Funcstack *stack, 
+        int count_params) {
     size_t offset = 0;
     for(int i = 0; i < count_params; i++) {
         if(signature[i] == 'i') {
@@ -22,7 +24,7 @@ void buf_generate(char *signature, char **params, struct Funcstack *stack, int c
             if(errno != 0) {
                 _exit(1);
             }
-            memcpy((stack->tmp + offset), &tmp, sizeof(tmp));
+            *(int *) (stack->tmp + offset) = tmp;    
             offset += sizeof(tmp);
         } else if(signature[i] == 'd') {
             errno = 0;
@@ -30,12 +32,11 @@ void buf_generate(char *signature, char **params, struct Funcstack *stack, int c
             if(errno != 0) {
                 _exit(1);
             }
-            memcpy((stack->tmp + offset), &tmp, sizeof(tmp));
+            *(double *) (stack->tmp + offset) = tmp;            
             offset += tmp;
         } else if(signature[i] == 's') {
-            memcpy((stack->tmp + offset), params[i],
-                    strlen(params[i]) * sizeof(char));
-            offset += strlen(params[i]) * sizeof(char);
+            *(char *) (stack->tmp + offset) = params[i];
+            offset += sizeof(params[i]);
         } 
     }
 }
@@ -58,18 +59,14 @@ int main(int argc, char **argv) {
     }
     struct Funcstack stack;
     buf_generate((argv[3] + 1), (argv + 4), &stack, argc - 4);
-    for(int i = 4; i < argc; i++) {
-        if(argv[3][0] == 'v') {
-            ((void (*)(struct Funcstack)) func)(stack);
-        } else if(argv[3][0] == 'i') {
+    if(argv[3][0] == 'v') {
+        ((void (*)(struct Funcstack)) func)(stack);
+    } else if(argv[3][0] == 'i') {
+        
+    } else if(argv[3][0] == 'd') {
             
-        } else if(argv[3][0] == 'd') {
+    } else if(argv[3][0] == 's') {
             
-        } else if(argv[3][0] == 's') {
-            
-        }
-    }
-    
-
+    }   
     return 0;
 }
