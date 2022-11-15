@@ -14,31 +14,40 @@ struct Funcstack {
 };
 
 
-void buf_generate(char *signature, char **params, struct Funcstack *stack, 
-        int count_params) {
+struct Funcstack *buf_generate(char *signature, char **params, size_t count_params) {
+    struct Funcstack *stack = calloc(1, sizeof(struct Funcstack));
     size_t offset = 0;
     for(int i = 0; i < count_params; i++) {
         if(signature[i] == 'i') {
             errno = 0;
-            int tmp = (int) strtol(params[i], NULL, 10);
+            //int tmp = (int) strtol(params[i], NULL, 10);
             if(errno != 0) {
                 _exit(1);
             }
-            *(int *) (stack->tmp + offset) = tmp;    
-            offset += sizeof(tmp);
+            char *tmp = params[i];
+            //stack->tmp[offset] = tmp;
+            //*(int *) &stack->tmp[offset] = tmp; 
+            memcpy(&stack->tmp[offset], tmp, strlen(tmp));   
+            offset += strlen(tmp) - 1;
         } else if(signature[i] == 'd') {
             errno = 0;
             double tmp = strtod(params[i], NULL);
-            if(errno != 0) {
-                _exit(1);
-            }
-            *(double *) (stack->tmp + offset) = tmp;            
-            offset += tmp;
+            //if(errno != 0) {
+            //    _exit(1);
+            //}
+            //char *tmp = params[i];
+            //*(double*) &stack->tmp[offset] = tmp;    
+            memcpy(&stack->tmp[offset], tmp, strlen(tmp));    
+            //stack->tmp[offset] = tmp;  
+            offset += strlen((str)tmp) - 1;
         } else if(signature[i] == 's') {
-            *(char *) (stack->tmp + offset) = params[i];
-            offset += sizeof(params[i]);
+            char *tmp = params[i];
+            memcpy(&stack->tmp[offset], tmp, strlen(tmp));
+            //stack->tmp[offset] = tmp;
+            offset += strlen(tmp) - 1;
         } 
     }
+    return stack;
 }
 
 
@@ -57,10 +66,9 @@ int main(int argc, char **argv) {
         perror("Function import error");
         return 1;
     }
-    struct Funcstack stack;
-    buf_generate((argv[3] + 1), (argv + 4), &stack, argc - 4);
+    struct Funcstack *stack = buf_generate((argv[3] + 1), &(argv[4]), argc - 4);
     if(argv[3][0] == 'v') {
-        ((void (*)(struct Funcstack)) func)(stack);
+       ((void (*)(struct Funcstack*)) func)(stack);
     } else if(argv[3][0] == 'i') {
         
     } else if(argv[3][0] == 'd') {
