@@ -9,8 +9,10 @@
 #include <stddef.h>
 
 
-struct Funcstack {
+struct Funcstack
+{
     char tmp[64];
+    int status;
 };
 
 
@@ -22,7 +24,8 @@ struct Funcstack buf_generate(char *signature, char **params, size_t count_param
             errno = 0;
             int tmp = (int) strtol(params[i], NULL, 10);
             if(errno != 0) {
-                _exit(1);
+                stack.status = 1;
+                return stack;
             }
             *(int *) &stack.tmp[offset] = tmp; 
             offset += sizeof(tmp);
@@ -30,7 +33,8 @@ struct Funcstack buf_generate(char *signature, char **params, size_t count_param
             errno = 0;
             double tmp = strtod(params[i], NULL);
             if(errno != 0) {
-                _exit(1);
+                stack.status = 1;
+                return stack;
             }
             *(double*) &stack.tmp[offset] = tmp;         
             offset += sizeof(tmp);
@@ -40,6 +44,7 @@ struct Funcstack buf_generate(char *signature, char **params, size_t count_param
             offset += sizeof(tmp);
         } 
     }
+    stack.status = 0;
     return stack;
 }
 
@@ -60,8 +65,11 @@ int main(int argc, char **argv) {
         return 1;
     }
     struct Funcstack stack = buf_generate((argv[3] + 1), &(argv[4]), argc - 4);
+    if(stack.status) {
+        _exit(1);
+    }
     if(argv[3][0] == 'v') {
-       ((void (*)(struct Funcstack)) func)(stack);
+        ((void (*)(struct Funcstack)) func)(stack);
     } else if(argv[3][0] == 'i') {
         int res = ((int (*)(struct Funcstack)) func)(stack);
         printf("%d\n", res);
