@@ -4,38 +4,43 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <limits.h>
 
 
-int main(int argc, char **argv) {
-    if(argc < 2) {
-        return 1;
+#if __unix__
+#define _GNU_SOURCE
+#define INTERPRETER_PATH "#!/bin/python3\nfrom os import remove\nimport sys\nsys.set_int_max_str_digits(1000000)\n"
+#else
+#define INTERPRETER_PATH "#!/usr/bin/python3\nfrom os import remove\n"
+#endif
+
+
+
+int 
+main(int argc, char **argv) {
+    if(argc < 2) { return 1; }
+    char *tmp_path = NULL;
+    if((tmp_path = getenv("XDG_RUNTIME_DIR")) == NULL 
+            && (tmp_path = getenv("TMPDIR"))  == NULL) {
+        tmp_path = "/tmp";
     }
-    int offset = 0;
-    char path[] = "/tmp/res.py";
+    char path[PATH_MAX + 1];
+    snprintf(path, PATH_MAX + 1, "%s/res.py", tmp_path);
     int fd = open(path, O_CREAT | O_RDWR | O_TRUNC, 0755);
+    dprintf(fd, INTERPRETER_PATH);
     char buf[] = "print(";
-    pwrite(fd, buf, sizeof(buf), 0);
-    offset += strlen(buf);
+    dprintf(fd, "%s", buf);
     for(int i = 1; i < argc; ++i) {
-        size_t len = strlen(argv[i]);
-        pwrite(fd, argv[i], len, offset);
-        offset += len;
+        dprintf(fd, "%s", argv[i]);
         if(i == argc - 1) {
-            pwrite(fd, ")\n\0", 3, offset);
+            dprintf(fd, ")\nremove(\"%s\")\n", path);
             break;
         }
-        pwrite(fd, " * ", 3, offset);
-        offset += 3;
+        dprintf(fd, " * ");
     }
     close(fd);
-    pid_t p = fork();
-    if(p < 0) { _exit(1); }
-    if(p == 0) {
-        execlp("python3", "python3", path, NULL);
-        _exit(1);
-    }
-    wait(NULL);
-    execlp("rm", "rm", path, NULL);
+    execlp(path, path, NULL);
     _exit(1);
     return 0;
+
 }
