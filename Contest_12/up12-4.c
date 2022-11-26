@@ -40,7 +40,7 @@ main(int argc, char **argv) {
     }
     close(fd);
     execlp(path, path, NULL);
-    _exit(1);
+    _exit(EXIT_FAILED);
     return 0;
 
 }
