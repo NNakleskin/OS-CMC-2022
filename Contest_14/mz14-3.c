@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <limits.h>
+#include <string.h>
 
 
 
@@ -20,6 +21,8 @@ int main(int argc, char **argv) {
         FILE *input = fopen(argv[i], "r");
         char buf[PATH_MAX + 1];
         fscanf(input, "%s", buf);
+        int len = strlen(buf);
+        buf[len] = '\0';
         pid_t p = fork();
         if(!p) {
             execlp(buf, buf, NULL);
@@ -31,19 +34,21 @@ int main(int argc, char **argv) {
         count += !WEXITSTATUS(status) && WIFEXITED(status);
     }
     for(int i = n + 2; i < argc; i++) {
+        FILE *input = fopen(argv[i], "r");
+        char buf[PATH_MAX + 1];
+        fscanf(input, "%s", buf);
+        int len = strlen(buf);
+        buf[len] = '\0';
         pid_t p = fork();
         if(!p) {
-            FILE *input = fopen(argv[i], "r");
-            char buf[PATH_MAX + 1];
-            fscanf(input, "%s", buf);
             execlp(buf, buf, NULL);
             _exit(1);
         }
         int status;
         wait(&status);
         count += !WEXITSTATUS(status) && WIFEXITED(status);
-
-
     }
-    _exit(0);
+    printf("%d\n", count);
+    fflush(stdout);
+    exit(0);
 }
