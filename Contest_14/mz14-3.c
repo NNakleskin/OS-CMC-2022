@@ -9,46 +9,41 @@
 #include <limits.h>
 #include <string.h>
 
+void process(char *filename)
+{
+    FILE *input = fopen(filename, "r");
+    char buf[PATH_MAX + 1];
+    int i = 0;
+    while (fscanf(input, "%s", buf) == 1 && i < PATH_MAX + 1){
+        i++;
+    }
+    pid_t p = fork();
+    fclose(input);
+    if (!p){
+        execlp(buf, buf, NULL);
+        _exit(EXIT_FAILURE);
+    }
+}
 
-
-int count = 0;
-
-
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
+    int count = 0;
     int n;
     n = strtol(argv[1], NULL, 10);
-    for(int i = 2; i < n + 2 && i < argc; ++i) {
-        FILE *input = fopen(argv[i], "r");
-        char buf[PATH_MAX + 1];
-        fscanf(input, "%s", buf);
-        int len = strlen(buf);
-        buf[len] = '\0';
-        pid_t p = fork();
-        if(!p) {
-            execlp(buf, buf, NULL);
-            _exit(1);
-        }
+    for (int i = 2; i < n + 2 && i < argc; ++i){
+        process(argv[i]);
     }
     int status;
-    while(wait(&status) > 0) {
+    while (wait(&status) > 0){
         count += !WEXITSTATUS(status) && WIFEXITED(status);
     }
-    for(int i = n + 2; i < argc; i++) {
-        FILE *input = fopen(argv[i], "r");
-        char buf[PATH_MAX + 1];
-        fscanf(input, "%s", buf);
-        int len = strlen(buf);
-        buf[len] = '\0';
-        pid_t p = fork();
-        if(!p) {
-            execlp(buf, buf, NULL);
-            _exit(1);
-        }
+    for (int i = n + 2; i < argc; i++){
+        process(argv[i]);
         int status;
         wait(&status);
         count += !WEXITSTATUS(status) && WIFEXITED(status);
     }
     printf("%d\n", count);
     fflush(stdout);
-    exit(0);
+    exit(EXIT_SUCCESS);
 }

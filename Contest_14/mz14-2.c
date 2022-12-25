@@ -12,12 +12,12 @@ int indicate = 0;
 unsigned int res = 0;
 
 
-void handler_1(int sig) {
+void handler_1() {
     indicate = 0;
 }
 
 
-void handler_2(int sig) {
+void handler_2() {
     indicate = 1;
 }
 
@@ -32,7 +32,7 @@ int main(void) {
     int n;
     indicate = 0;
     res = 0;
-    while(scanf("%d", &n) != EOF) {
+    while(scanf("%d", &n) == 1) {
         if(!indicate) {
             res += (unsigned int) n;
             printf("%d\n", (int) res);
